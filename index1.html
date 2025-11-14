@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trading Journal App</title>
+  <style>
+    body { font-family: Arial; background: #f4f4f4; margin: 20px; }
+    h1 { text-align: center; }
+    .container { max-width: 900px; margin: auto; }
+    .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+    th { background: #222; color: white; }
+    input, select { padding: 8px; width: 100%; margin-bottom: 10px; }
+    .btn { padding: 10px; background: #222; color: white; border: none; cursor: pointer; width: 100%; }
+    .btn:hover { background: #444; }
+    .delete-btn { background: red; padding: 6px; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>Trading Journal</h1>
+
+<div class="container">
+
+  <!-- Add Trade Form -->
+  <div class="card">
+    <h2>Add Trade</h2>
+    <input id="date" type="date">
+    <input id="symbol" placeholder="Symbol (e.g., NIFTY 25200CE)">
+    <input id="entry" placeholder="Entry Price">
+    <input id="exit" placeholder="Exit Price">
+    <input id="sl" placeholder="Stop Loss">
+    <select id="result">
+      <option value="Open">Open</option>
+      <option value="Win">Win</option>
+      <option value="Loss">Loss</option>
+    </select>
+    <input id="emotion" placeholder="Emotion (e.g., Fear, Confidence)">
+    <input id="notes" placeholder="Notes">
+    <button class="btn" onclick="addTrade()">Add Trade</button>
+  </div>
+
+  <!-- Trade Table -->
+  <div class="card">
+    <h2>Trades</h2>
+    <table id="tradeTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Symbol</th>
+          <th>Entry</th>
+          <th>Exit</th>
+          <th>SL</th>
+          <th>Result</th>
+          <th>Emotion</th>
+          <th>Notes</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  let trades = JSON.parse(localStorage.getItem("trades")) || [];
+
+  function saveTrades() {
+    localStorage.setItem("trades", JSON.stringify(trades));
+  }
+
+  function loadTrades() {
+    const tbody = document.querySelector("#tradeTable tbody");
+    tbody.innerHTML = "";
+
+    trades.forEach((t, index) => {
+      const row = `
+        <tr>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'date', this.innerText)">${t.date}</td>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'symbol', this.innerText)">${t.symbol}</td>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'entry', this.innerText)">${t.entry}</td>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'exit', this.innerText)">${t.exit}</td>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'sl', this.innerText)">${t.sl}</td>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'result', this.innerText)">${t.result}</td>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'emotion', this.innerText)">${t.emotion}</td>
+          <td contenteditable="true" oninput="updateTrade(${index}, 'notes', this.innerText)">${t.notes}</td>
+          <td><button class="delete-btn" onclick="deleteTrade(${index})">X</button></td>
+        </tr>`;
+      tbody.innerHTML += row;
+    });
+  }
+
+  function updateTrade(index, field, value) {
+    trades[index][field] = value;
+    saveTrades();
+  }
+
+  function addTrade() {
+    const newTrade = {
+      date: document.getElementById("date").value,
+      symbol: document.getElementById("symbol").value,
+      entry: document.getElementById("entry").value,
+      exit: document.getElementById("exit").value,
+      sl: document.getElementById("sl").value,
+      result: document.getElementById("result").value,
+      emotion: document.getElementById("emotion").value,
+      notes: document.getElementById("notes").value
+    };
+
+    trades.push(newTrade);
+    saveTrades();
+    loadTrades();
+  }
+
+  function deleteTrade(index) {
+    trades.splice(index, 1);
+    saveTrades();
+    loadTrades();
+  }
+
+  loadTrades();
+</script>
+
+</body>
+</html>
